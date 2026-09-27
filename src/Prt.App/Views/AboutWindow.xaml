@@ -1,0 +1,191 @@
+<Window x:Class="Prt.App.Views.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:Prt.App.Theming"
+        Title="{loc:Loc about.title}"
+        Width="620"
+        SizeToContent="Height"
+        MinHeight="380"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Icon="pack://application:,,,/Prt.App;component/Assets/app.ico"
+        Background="{DynamicResource App.WindowBg}"
+        Foreground="{DynamicResource App.Text}"
+        FontFamily="{StaticResource Prt.FontFamily}"
+        FontSize="13"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display">
+
+    <!--
+        「关于」对话框：取代原先的一段 MessageBox 纯文本。
+        结构与激活窗口一致——正文可滚动、窗口高度钳到屏幕工作区、按钮固定在底部条。
+    -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Focusable="False">
+            <StackPanel Margin="26,24,26,20">
+
+                <!-- ── 标题区：品牌标 + 程序名 + 版本 + 一句话 ── -->
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="64"
+                               Height="64"
+                               Fill="{StaticResource Brand.MarkBrush}"
+                               VerticalAlignment="Top" />
+                    <StackPanel Margin="18,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="{loc:Loc app.name}"
+                                   FontSize="24"
+                                   FontWeight="SemiBold" />
+                        <TextBlock x:Name="VersionText"
+                                   Style="{StaticResource Prt.Hint}"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
+                </StackPanel>
+
+                <TextBlock Text="{loc:Loc about.tagline}"
+                           Style="{StaticResource Prt.Hint}"
+                           FontSize="13"
+                           Margin="0,16,0,0" />
+                <TextBlock x:Name="SpecText"
+                           Style="{StaticResource Prt.Hint}"
+                           Margin="0,4,0,0" />
+
+                <Border Height="1"
+                        Background="{DynamicResource App.Border}"
+                        Margin="0,18,0,18" />
+
+                <!-- ── 功能一览 ── -->
+                <TextBlock Text="{loc:Loc about.feature.title}" Style="{StaticResource Prt.SectionTitle}" />
+                <Border Style="{StaticResource Prt.Card}" Margin="0,0,0,16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="·"
+                                   Foreground="{StaticResource Brand.Brush.Ink}" FontWeight="Bold" />
+                        <TextBlock Grid.Row="0" Grid.Column="1" Margin="0,0,0,7"
+                                   Style="{StaticResource Prt.Hint}"
+                                   Foreground="{DynamicResource App.Text}"
+                                   Text="{loc:Loc about.feature.1}" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="·"
+                                   Foreground="{StaticResource Brand.Brush.Ink}" FontWeight="Bold" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,0,0,7"
+                                   Style="{StaticResource Prt.Hint}"
+                                   Foreground="{DynamicResource App.Text}"
+                                   Text="{loc:Loc about.feature.2}" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="·"
+                                   Foreground="{StaticResource Brand.Brush.Ink}" FontWeight="Bold" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,0,0,7"
+                                   Style="{StaticResource Prt.Hint}"
+                                   Foreground="{DynamicResource App.Text}"
+                                   Text="{loc:Loc about.feature.3}" />
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="·"
+                                   Foreground="{StaticResource Brand.Brush.Ink}" FontWeight="Bold" />
+                        <TextBlock Grid.Row="3" Grid.Column="1" Margin="0,0,0,7"
+                                   Style="{StaticResource Prt.Hint}"
+                                   Foreground="{DynamicResource App.Text}"
+                                   Text="{loc:Loc about.feature.4}" />
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="·"
+                                   Foreground="{StaticResource Brand.Brush.Ink}" FontWeight="Bold" />
+                        <TextBlock Grid.Row="4" Grid.Column="1"
+                                   Style="{StaticResource Prt.Hint}"
+                                   Foreground="{DynamicResource App.Text}"
+                                   Text="{loc:Loc about.feature.5}" />
+                    </Grid>
+                </Border>
+
+                <!-- ── 当前授权 ── -->
+                <TextBlock Text="{loc:Loc about.license.title}" Style="{StaticResource Prt.SectionTitle}" />
+                <Border Style="{StaticResource Prt.Card}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="LevelBadge"
+                                    Background="{DynamicResource App.ControlFill}"
+                                    BorderBrush="{DynamicResource App.Border}"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    Padding="12,5,12,5"
+                                    VerticalAlignment="Center">
+                                <TextBlock x:Name="LevelBadgeText"
+                                           Text="{loc:Loc activation.badge.none}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource App.Text}" />
+                            </Border>
+                            <TextBlock x:Name="LicenseText"
+                                       TextWrapping="Wrap"
+                                       MaxWidth="390"
+                                       Margin="14,0,0,0"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+
+                        <Border Height="1"
+                                Background="{DynamicResource App.Border}"
+                                Margin="0,12,0,10" />
+
+                        <TextBlock Text="{loc:Loc about.license.hint}" Style="{StaticResource Prt.Hint}" />
+                        <TextBlock x:Name="StorageText" Style="{StaticResource Prt.Hint}" Margin="0,2,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <!-- ── 落款 ── -->
+                <TextBlock Text="{loc:Loc about.credit}"
+                           Style="{StaticResource Prt.Hint}"
+                           HorizontalAlignment="Center"
+                           Margin="0,18,0,0" />
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ── 底部固定条 ── -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource App.PanelBg}"
+                BorderBrush="{DynamicResource App.Border}"
+                BorderThickness="0,1,0,0"
+                Padding="26,14">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="ActivationButton"
+                        Content="{loc:Loc about.button.activation}"
+                        MinWidth="120"
+                        Height="32"
+                        Margin="0,0,8,0"
+                        Click="OnActivationClick" />
+                <Button x:Name="ComplianceButton"
+                        Content="{loc:Loc about.button.compliance}"
+                        MinWidth="112"
+                        Height="32"
+                        Margin="0,0,8,0"
+                        Click="OnComplianceClick" />
+                <Button x:Name="ShortcutsButton"
+                        Content="{loc:Loc about.button.shortcuts}"
+                        MinWidth="96"
+                        Height="32"
+                        Margin="0,0,8,0"
+                        Click="OnShortcutsClick" />
+                <Button Content="{loc:Loc common.close}"
+                        MinWidth="88"
+                        Height="32"
+                        IsDefault="True"
+                        IsCancel="True" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

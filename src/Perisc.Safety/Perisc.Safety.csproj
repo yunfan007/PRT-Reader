@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Perisc.Safety：PSS 标准模块一（ARM）+ 模块二（IM）的 C# 绑定实现。
+    依据：《PSS 标准》（CSRO-CRS-26001）v7.2 第 4～7 章。
+    硬性约定：命名空间 Perisc.Safety；全部类型为普通类（不用 record/required/init），
+    属性一律 public T X { get; internal set; }；异步只用 Task；不抛业务异常（4.10）。
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Perisc.Safety</RootNamespace>
+    <AssemblyName>Perisc.Safety</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>

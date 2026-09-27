@@ -1,0 +1,126 @@
+<Application x:Class="Prt.Installer.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <!--
+            主题表并入本文件，**不用 MergedDictionaries 外挂**：
+            写成 `<Application.Resources><ResourceDictionary><MergedDictionaries>`
+            这种嵌套形式时，WPF 会用 DeferredBinaryDeserializerExtension 延迟构造那个内嵌
+            字典，而延迟阶段它还没挂进 Application.Resources——主题字典内部的画刷记不到值，
+            SolidColorBrush.Color 拿到空串，运行时报“FormatException: 令牌无效”，直接崩在
+            启动阶段；编译期一声不响，只有运行时才炸，是最难查的一类。
+            为了绕开这一层，宁可让 App.xaml 长一些（原本存在 Theming\InstallerStyles.xaml 里，
+            内容整体搬来，键名 I.* 不变）。顺带也丢掉了 pack URI 与"松散文件找不着"的隐患。
+        -->
+
+    
+        <Style x:Key="I.Title" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF1B2733" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style x:Key="I.Subtitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF5B6B7C" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style x:Key="I.SectionTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF1B2733" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+
+        <!-- 卡片：内容分区的统一容器 -->
+        <Style x:Key="I.Card" TargetType="Border">
+            <Setter Property="Background" Value="#FFFFFFFF" />
+            <Setter Property="BorderBrush" Value="#FFE3E9F2" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="16" />
+        </Style>
+
+        <!-- 主按钮 -->
+        <Style x:Key="I.PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#FF0E5BC5" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Padding" Value="22,8" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root" Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.9" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 次按钮 -->
+        <Style x:Key="I.SecondaryButton" TargetType="Button">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="Foreground" Value="#FF1B2733" />
+            <Setter Property="BorderBrush" Value="#FFE3E9F2" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Padding" Value="18,7" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#FFEDF3FA" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 安装位置输入框 -->
+        <Style x:Key="I.TextBox" TargetType="TextBox">
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="BorderBrush" Value="#FFE3E9F2" />
+            <Setter Property="Background" Value="White" />
+        </Style>
+
+        <Style x:Key="I.CheckBox" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#FF1B2733" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Margin" Value="0,4" />
+        </Style>
+
+        <Style x:Key="I.RadioButton" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="#FF1B2733" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Margin" Value="0,3" />
+        </Style>
+    </Application.Resources>
+</Application>

@@ -1,0 +1,277 @@
+<Window x:Class="Prt.App.Views.TutorialWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:Prt.App.Theming"
+        Title="{loc:Loc tutorial.title}"
+        Width="1100"
+        Height="800"
+        MinWidth="820"
+        MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource App.WindowBg}"
+        Foreground="{DynamicResource App.Text}"
+        FontSize="13">
+
+    <!--
+        互动教程：左边课程目录，右边两个页签——
+        「课程与练习」＝ 说明 + 示例 + 效果预览 + 动手练习（可校验）；
+        「结业测试」＝ 覆盖各课的单选测验，交卷即判分。
+        效果预览走的就是编辑器同一条渲染管线（解析 → PreviewBuilder），样式与真实文档一致，不是截图。
+    -->
+    <DockPanel>
+
+        <!-- ── 顶部：标题、进度、翻课 ── -->
+        <Border DockPanel.Dock="Top"
+                Padding="18,14"
+                Background="{DynamicResource App.PanelBg}"
+                BorderBrush="{DynamicResource App.Border}"
+                BorderThickness="0,0,0,1">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="30"
+                               Height="30"
+                               Fill="{StaticResource Brand.MarkBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0"
+                               SnapsToDevicePixels="True" />
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{loc:Loc tutorial.title}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="{loc:Loc tutorial.subtitle}"
+                                   FontSize="12"
+                                   Margin="0,2,0,0"
+                                   Foreground="{DynamicResource App.SubtleText}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock x:Name="ProgressText"
+                               VerticalAlignment="Center"
+                               Margin="0,0,14,0"
+                               Foreground="{DynamicResource App.SubtleText}" />
+                    <Button x:Name="PrevLessonButton"
+                            Content="{loc:Loc tutorial.prev}"
+                            Width="96"
+                            Height="30"
+                            Click="OnPrevLessonClick" />
+                    <Button x:Name="NextLessonButton"
+                            Content="{loc:Loc tutorial.next}"
+                            Width="96"
+                            Height="30"
+                            Margin="8,0,0,0"
+                            Click="OnNextLessonClick" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="266" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ── 课程目录 ── -->
+            <Border Grid.Column="0"
+                    Background="{DynamicResource App.PanelBg}"
+                    BorderBrush="{DynamicResource App.Border}"
+                    BorderThickness="0,0,1,0">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top"
+                               Text="{loc:Loc tutorial.lessons}"
+                               Style="{StaticResource Prt.PanelHeader}" />
+                    <ListBox x:Name="LessonList"
+                             BorderThickness="0"
+                             SelectionChanged="OnLessonSelected" />
+                </DockPanel>
+            </Border>
+
+            <TabControl x:Name="MainTabs" Grid.Column="1" BorderThickness="0">
+
+                <!-- ══════════════ 页签一：课程与练习 ══════════════ -->
+                <TabItem Header="{loc:Loc tutorial.tab.lesson}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,18,24,22">
+                        <StackPanel>
+                            <TextBlock x:Name="LessonTitle"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap" />
+                            <TextBlock x:Name="LessonBody"
+                                       Margin="0,10,0,0"
+                                       TextWrapping="Wrap"
+                                       LineHeight="23"
+                                       Foreground="{DynamicResource App.Text}" />
+
+                            <TextBlock Text="{loc:Loc tutorial.snippet}"
+                                       FontWeight="SemiBold"
+                                       Margin="0,20,0,6" />
+                            <Border Background="{DynamicResource App.ControlFill}"
+                                    BorderBrush="{DynamicResource App.Border}"
+                                    BorderThickness="1"
+                                    CornerRadius="6">
+                                <TextBox x:Name="SnippetBox"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         IsReadOnly="True"
+                                         AcceptsReturn="True"
+                                         TextWrapping="NoWrap"
+                                         MaxHeight="190"
+                                         VerticalScrollBarVisibility="Auto"
+                                         HorizontalScrollBarVisibility="Auto"
+                                         FontFamily="Consolas"
+                                         Padding="10,8" />
+                            </Border>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                <Button x:Name="InsertButton"
+                                        Content="{loc:Loc tutorial.insert}"
+                                        MinWidth="130"
+                                        Height="32"
+                                        Background="{DynamicResource App.Accent}"
+                                        Foreground="{DynamicResource App.OnAccent}"
+                                        BorderBrush="{DynamicResource App.Accent}"
+                                        Click="OnInsertClick" />
+                                <TextBlock x:Name="MessageText"
+                                           VerticalAlignment="Center"
+                                           Margin="14,0,0,0"
+                                           Foreground="{DynamicResource App.SubtleText}" />
+                            </StackPanel>
+
+                            <!-- ── 动手练习 ── -->
+                            <Border x:Name="PracticePanel"
+                                    Margin="0,22,0,0"
+                                    Padding="16,14"
+                                    Background="{DynamicResource App.PanelAltBg}"
+                                    BorderBrush="{DynamicResource App.Border}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{loc:Loc tutorial.practice}"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="15" />
+                                        <TextBlock x:Name="PracticeDoneText"
+                                                   Margin="12,2,0,0"
+                                                   Foreground="{DynamicResource App.Accent}" />
+                                    </StackPanel>
+
+                                    <TextBlock x:Name="PracticePrompt"
+                                               Margin="0,8,0,0"
+                                               TextWrapping="Wrap"
+                                               LineHeight="22" />
+
+                                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                        <Button Content="{loc:Loc tutorial.practice.insert}"
+                                                MinWidth="146"
+                                                Height="30"
+                                                Click="OnPracticeInsertClick" />
+                                        <Button Content="{loc:Loc tutorial.practice.check}"
+                                                MinWidth="136"
+                                                Height="30"
+                                                Margin="10,0,0,0"
+                                                Background="{DynamicResource App.Accent}"
+                                                Foreground="{DynamicResource App.OnAccent}"
+                                                BorderBrush="{DynamicResource App.Accent}"
+                                                Click="OnPracticeCheckClick" />
+                                        <Button x:Name="PracticeAnswerButton"
+                                                Content="{loc:Loc tutorial.practice.answer}"
+                                                MinWidth="120"
+                                                Height="30"
+                                                Margin="10,0,0,0"
+                                                Click="OnPracticeAnswerClick" />
+                                    </StackPanel>
+
+                                    <TextBlock x:Name="PracticeResultText"
+                                               Margin="0,12,0,0"
+                                               TextWrapping="Wrap"
+                                               LineHeight="22" />
+
+                                    <TextBlock x:Name="PracticeNoteLabel"
+                                               Text="{loc:Loc tutorial.practice.answerlabel}"
+                                               FontWeight="SemiBold"
+                                               Margin="0,12,0,4"
+                                               Visibility="Collapsed" />
+                                    <Border x:Name="PracticeAnswerBox"
+                                            Background="{DynamicResource App.ControlFill}"
+                                            BorderBrush="{DynamicResource App.Border}"
+                                            BorderThickness="1"
+                                            CornerRadius="6"
+                                            Visibility="Collapsed">
+                                        <TextBox x:Name="PracticeAnswerText"
+                                                 BorderThickness="0"
+                                                 Background="Transparent"
+                                                 IsReadOnly="True"
+                                                 AcceptsReturn="True"
+                                                 TextWrapping="NoWrap"
+                                                 MaxHeight="200"
+                                                 VerticalScrollBarVisibility="Auto"
+                                                 HorizontalScrollBarVisibility="Auto"
+                                                 FontFamily="Consolas"
+                                                 Padding="10,8" />
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+
+                            <TextBlock Text="{loc:Loc tutorial.demo}"
+                                       FontWeight="SemiBold"
+                                       Margin="0,20,0,6" />
+                            <Border Background="{DynamicResource App.PanelAltBg}"
+                                    BorderBrush="{DynamicResource App.Border}"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    Padding="4">
+                                <FlowDocumentScrollViewer x:Name="DemoView"
+                                                          IsToolBarVisible="False"
+                                                          VerticalScrollBarVisibility="Auto"
+                                                          MinHeight="160"
+                                                          MaxHeight="360" />
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- ══════════════ 页签二：结业测试 ══════════════ -->
+                <TabItem Header="{loc:Loc tutorial.tab.quiz}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,18,24,22">
+                        <StackPanel>
+                            <TextBlock Text="{loc:Loc tutorial.quiz.title}"
+                                       FontSize="20"
+                                       FontWeight="SemiBold" />
+                            <TextBlock x:Name="QuizSubtitleText"
+                                       Margin="0,6,0,0"
+                                       TextWrapping="Wrap"
+                                       Foreground="{DynamicResource App.SubtleText}" />
+                            <TextBlock x:Name="BestScoreText"
+                                       Margin="0,4,0,0"
+                                       Foreground="{DynamicResource App.Accent}" />
+
+                            <StackPanel x:Name="QuizPanel" Margin="0,16,0,0" />
+
+                            <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                                <Button x:Name="SubmitQuizButton"
+                                        Content="{loc:Loc tutorial.quiz.submit}"
+                                        MinWidth="110"
+                                        Height="32"
+                                        Background="{DynamicResource App.Accent}"
+                                        Foreground="{DynamicResource App.OnAccent}"
+                                        BorderBrush="{DynamicResource App.Accent}"
+                                        Click="OnSubmitQuizClick" />
+                                <Button Content="{loc:Loc tutorial.quiz.retake}"
+                                        MinWidth="110"
+                                        Height="32"
+                                        Margin="10,0,0,0"
+                                        Click="OnRetakeQuizClick" />
+                            </StackPanel>
+
+                            <TextBlock x:Name="QuizResultText"
+                                       Margin="0,14,0,0"
+                                       TextWrapping="Wrap"
+                                       FontWeight="SemiBold"
+                                       LineHeight="24" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </DockPanel>
+</Window>

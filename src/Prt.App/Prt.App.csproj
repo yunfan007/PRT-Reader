@@ -1,0 +1,82 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Prt.App：WPF 原生桌面应用（编辑器 + 查看器）。
+    硬性约束：界面全部使用原生 WPF 控件实现，不使用 WebView / WebBrowser / 任何浏览器内核。
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RootNamespace>Prt.App</RootNamespace>
+    <AssemblyName>Prt.App</AssemblyName>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <!--
+      启动受控（PSS 标准 3.4、7.1）：主程序编译为 DLL，不生成 apphost 可执行文件。
+      UseAppHost=false 之后只产出 Prt.App.dll（仍带入口点，可被 dotnet 宿主执行），
+      用户没有可直接双击的 exe，启动权落在宿主启动器（Perisc.Safety.SafeGuard）手里。
+      这是标准「第一等程度的反绕过」：被篡改的运行体没有启动路径。
+      开发期需要直接跑时，用 dotnet run 指定本工程，或 dotnet exec Prt.App.dll。
+    -->
+    <UseAppHost>false</UseAppHost>
+  </PropertyGroup>
+
+  <!--
+    窗口图标：与 exe 图标同源（Assets\app.ico）。
+    ApplicationIcon 负责可执行文件 / 任务栏 / 资源管理器的图标；
+    Resource 条目供 MainWindow 的 Window.Icon 使用，保证窗体与 exe 图标一致。
+  -->
+  <ItemGroup>
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prt.Core\Prt.Core.csproj" />
+    <ProjectReference Include="..\Perisc.Safety\Perisc.Safety.csproj" />
+  </ItemGroup>
+
+  <!--
+    随程序分发示例文档：部署后 samples 位于可执行文件同级的 samples 目录，
+    「打开示例文档」按此相对路径定位，且**只认这一个位置、这一个文件名**——
+    定位逻辑不再向上回溯源码树，也不再把「示例-全景演示」旧名作为回退，
+    故这里也只打包这一份文件（通配符会引入「复制了却永远不会被定位」的多余副本）。
+    必须同时设置 CopyToPublishDirectory，否则 dotnet publish 的产物里会缺少示例文档。
+  -->
+  <ItemGroup>
+    <None Include="..\..\samples\sample.prt"
+          Link="samples\sample.prt"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!--
+    内置教程：把《PRT 教程》《PRT 作者指南》随程序分发到「帮助」目录，
+    「帮助 → 打开教程」按此相对路径定位，且**只认这一处**（不再回溯源码树），
+    因此开发期与发行版都依赖本条目把文件复制到输出目录。
+    注意：标准文档自 2026-09-18 起按标准族分目录存放，源路径为 Standard\PRT\。
+  -->
+  <ItemGroup>
+    <None Include="..\..\..\Standard\PRT\PRT-教程.md"
+          Link="帮助\PRT-教程.md"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest" />
+    <None Include="..\..\..\Standard\PRT\PRT-作者指南.md"
+          Link="帮助\PRT-作者指南.md"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!--
+    PSS 行为清单（PSS 标准 8.3）：随程序分发的安全行为申报口径说明（接入模式 A）。
+  -->
+  <ItemGroup>
+    <None Include="..\..\docs\行为清单.md"
+          Link="安全\行为清单.md"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

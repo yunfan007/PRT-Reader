@@ -1,0 +1,133 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+#  PRT 阅读器 —— 静态分析门禁配置（CRS 9.6.4 D-17）
+#
+#  分三档：
+#    一、error  门禁项。必须为 0；任何一处回归都会让编译失败，
+#               build.ps1 -Task lint 会再独立复核一遍。
+#    二、none   明文放行。每条都必须给出"为什么不适用"的理由，
+#               对应《工程改进方案》第 13 项"为每一个不适用写下理由"。
+#    三、其余   沿用 .NET 分析器"推荐集合"的默认级别，作为棘轮基线——
+#               当前计数记录在 docs/分析器门禁.md，只降不升。
+#
+#  规则全表、判据与基线计数见 docs/分析器门禁.md。
+#  改动本文件必须同步那份文档，否则门禁与文档会互相打架。
+# ═══════════════════════════════════════════════════════════════════════════════
+
+root = true
+
+# ───────────────────────────────────────────────────────────────────────────────
+#  一、门禁项（error）：清零并保持为零
+# ───────────────────────────────────────────────────────────────────────────────
+
+[*.{cs,csx,vb}]
+
+# 字符串比较的正确性：只拦"默认即区域性比较"的方法（StartsWith/EndsWith/IndexOf(string)/Compare）。
+# 与 CA1307 的分工见下方 CA1307 条目。
+dotnet_diagnostic.CA1310.severity = error
+
+# 数字与日期的格式化/解析必须显式指定区域性。
+# 编号层（StructureResolver / NumberingFormatter）此前用 int.ToString()，
+# 在阿拉伯-印度数字等区域下会产出非 ASCII 数字，是真实的潜在缺陷。
+dotnet_diagnostic.CA1305.severity = error
+
+# P/Invoke 必须声明 DefaultDllImportSearchPaths，防止不可信目录下的同名 DLL 被优先加载。
+dotnet_diagnostic.CA5392.severity = error
+
+# 参数校验统一用 ArgumentNullException.ThrowIfNull（与 CA1062 重叠，此处取更具体的实现要求）。
+dotnet_diagnostic.CA1510.severity = error
+
+# 不访问实例数据的成员应标为 static：避免无意义的实例耦合，也让调用方知道它不持有状态。
+# api_surface 限定为 private/internal：本工程有三处**公开**成员在语义上确实不碰实例数据，
+# 但它们的形态由对外契约决定，不由分析器决定——
+#   SafetyClient.ApiVersion   （PSS 4.3 的模块 API 面，调用方按实例访问）
+#   SafeGuardClient.VersionHash（PSS 4.6 / 2.4 的程序运行体哈希，同上）
+#   TutorialWindow.LessonCount（自检与宿主按窗口实例读取的计数）
+# 把这三个改成 static 会改变公开 API 形态（调用点 window.X 全部编译失败），
+# 属于"以分析器告警为由倒逼契约变更"，得不偿失。内部成员仍全部要求 static。
+dotnet_code_quality.CA1822.api_surface = private, internal
+dotnet_diagnostic.CA1822.severity = error
+
+# 用 Contains 代替 IndexOf(...) >= 0：可读性，且不会因漏写比较而产生逻辑错误。
+dotnet_diagnostic.CA2249.severity = error
+
+# 所有字符串比较显式写出比较方式，不用隐式默认值（《工程改进方案》第 10 项）。
+# 与 CA1310 的分工：CA1310 只管"默认即区域性比较"这个**正确性**缺陷；
+# CA1307 覆盖全部比较调用，管的是**意图是否写明**——本项目把它一并升级为门禁，
+# 因为它拦下的 Replace(string, string) 这类重载，恰是维护中最容易被悄悄改掉比较方式的位置。
+# 全部命中已逐处显式补上 StringComparison.Ordinal / OrdinalIgnoreCase：
+# 字符重载（Contains / IndexOf(char)）的默认比较本就是序数，补 Ordinal 不改变行为，只是把意图写明。
+dotnet_diagnostic.CA1307.severity = error
+
+# 可见的非常量静态字段。它是《工程改进方案》第 7 项（全局可变静态状态）的回归护栏：
+# 静态可变的**字段**今后一律不可公开；确需跨模块共享状态时用属性 + 显式生命周期管理。
+dotnet_diagnostic.CA2211.severity = error
+
+# 库侧 await 一律 ConfigureAwait(false)（CRS D-25）。
+# 注意：本项目 5 个库工程此规则已为 0——这本身就是 D-25 的执行证据。
+# WPF 应用工程例外，理由见下方 [src/Prt.App/**] 段。
+dotnet_diagnostic.CA2007.severity = error
+
+# ───────────────────────────────────────────────────────────────────────────────
+#  二、明文放行（none）：每条都写明"为什么不适用"
+# ───────────────────────────────────────────────────────────────────────────────
+
+# 本工程**刻意**采用"捕获通用异常 → 降级 → 紧邻注释写明吞掉什么/降到什么状态/何时应传播"的策略
+# （《工程改进方案》第 3 项）。该策略要求 catch(Exception) 尽可能少而集中，
+# 但保留的每一处都必须在代码里交代清楚——这条靠人工评审保证，不由分析器代劳。
+dotnet_diagnostic.CA1031.severity = none
+
+# 本工程使用自建 Localizer（Services/Strings.cs）+ 内嵌字符串表，不走 WinForms 的
+# Localizable 资源机制；把字面量传给参数在此不构成缺陷。
+dotnet_diagnostic.CA1303.severity = none
+
+# 该规则要求"规范化为大写而非小写"。本工程出现 ToLowerInvariant 的地方是
+# 十六进制摘要、协议标识与扩展名，改成大写会破坏既有的线格式与落盘内容。
+dotnet_diagnostic.CA1308.severity = none
+
+# 该规则要求把方法返回类型/参数类型收窄为具体类型以省一次强制转换。
+# 在解析层会要求把统一返回的 PrtBlock 收窄成 LayoutBlock / ListBlock 等，
+# 等于改动对外契约——纯逻辑层刻意保持"统一基类返回"，此处以可维护性优先于微优化。
+dotnet_diagnostic.CA1859.severity = none
+
+# 纯托管对象（MemoryStream / StringContent / SemaphoreSlim / 纯内存集合）未 Dispose
+# 不构成泄漏：GC 会兜底，CRS D-11c 明文承认"未写 using 不等于泄漏"。
+# 详见 docs/设计取舍.md「纯托管闸门不释放」——对 SemaphoreSlim 而言，
+# 主动 Dispose 反而会诱导 ObjectDisposedException，比留着更危险。
+dotnet_diagnostic.CA2000.severity = none
+dotnet_diagnostic.CA2213.severity = none
+dotnet_diagnostic.CA1001.severity = none
+
+# 审计存储刻意采用"同步磁盘 I/O + SemaphoreSlim 互斥"（见 docs/设计取舍.md）。
+# 在持锁段内改用异步等待会把锁的语义复杂化，而这段代码的执行线程本来就是后台线程。
+dotnet_diagnostic.CA1849.severity = none
+
+# Prt.Core 的公开模型类型刻意暴露 List<T>：解析期调用方需要追加元素，
+# 换成 IList<T>/IReadOnlyList<T> 会引入装箱或额外的包装类型。
+dotnet_diagnostic.CA1002.severity = none
+
+# 与 CA1510 重叠且更宽松；本仓库统一按 CA1510 的要求写校验。
+dotnet_diagnostic.CA1062.severity = none
+
+# 这些 Substring 的结果被当作 string 返回或存入字段，AsSpan 不适用
+# （ReadOnlySpan<char> 不能作为返回值类型存活到调用方作用域之外）。
+dotnet_diagnostic.CA1846.severity = none
+
+# Wire.cs 的 Int 是守护服务线协议的字段名，与格式定义一一对应，改名即改协议。
+dotnet_diagnostic.CA1720.severity = none
+
+# Structure 是 VB 的保留字；本仓库仅 C#，且 Prt.Core.Structure 已是既定的类型命名空间。
+dotnet_diagnostic.CA1716.severity = none
+
+# ───────────────────────────────────────────────────────────────────────────────
+#  三、工程级例外
+# ───────────────────────────────────────────────────────────────────────────────
+
+# WPF 应用工程：await 之后必须回到 UI 线程续跑（触碰 WPF 元素），
+# 因此这里**不能**用 ConfigureAwait(false)——该规则只对库工程有意义。
+#
+# 段名用 [src/Prt.App/**] 而不是 [src/Prt.App/**/*.cs]：后者要求 `**` 之后
+# 还必须有一层目录，匹配不到 src/Prt.App/App.xaml.cs 这类直接子文件。
+# 实测中 WPF 为 XAML 生成的临时工程（Prt.App_*_wpftmp.csproj）恰好编译 App.xaml.cs，
+# 于是漏配的规则在那里升级为 error —— 而这只在临时工程里出现，最难排查。
+[src/Prt.App/**]
+dotnet_diagnostic.CA2007.severity = none

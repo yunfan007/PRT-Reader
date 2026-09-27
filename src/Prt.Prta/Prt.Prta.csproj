@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Prt.Prta：PRTA（PRT 受限运行后端语言）到 JavaScript 的转译器，编译器与图形前端合一。
+    实现口径：《PRT-标准》PRTA 分册（v3.1）：
+      6  词法约定（VAR 名变量、指令行、操作数种类）
+      11 运行块签名（可省略、可缺类型的简化签名）
+      9  指令集（结构化 IF/WHILE、堆栈槽、EMIT/LOADVAR/LOADPORT）
+      附录 D  PRTA-JS 转译基准（D.1 骨架 / D.2 逐指令模板 / D.3 结构化映射）
+      附录 C  错误码清单（E_LEX / E_SIGNATURE / E_OUTPUT / E_UI / E_TYPE ...）
+    图形前端：输入块属性（id / sig）与块体指令，点「编译」得到目标 JavaScript。
+    源码命名空间保持拆分前口径：编译器部分 Prt.Prta.Compiler，图形前端 Prt.Prta.Gui。
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>Prt.Prta</RootNamespace>
+    <AssemblyName>Prt.Prta</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+</Project>

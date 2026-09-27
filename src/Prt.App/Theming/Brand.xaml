@@ -1,0 +1,136 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        品牌标记（Brand Mark）：与品牌标源文件 icon.svg 同一套几何与配色，改用 WPF 矢量画法表达。
+        ────────────────────────────────────────────────────────────────────────────────
+        · 源文件位于解决方案根目录的上一级：`MarkDown+/icon.svg`（与 Standard\ 同级，
+          本工程已按同样方式引用父目录资源）。坐标一律沿用其用户单位（画布 256×256），
+          改一处两边同步。
+        · Assets/app.ico 由同一套数值离线烘焙（见 .workbuddy/scratch/scripts/make_app_icon.py），
+          三者（icon.svg / Brand.xaml / app.ico）几何必须一致。
+        · 只做矢量，不做位图：任何尺寸下都清晰，且不增加分发体积。
+        · 配色固定（品牌色不随浅色 / 深色界面变化），与窗口图标保持一致。
+        · 两档用法与 ICO 的处理一致：
+            Brand.MarkBrush       —— 完整画法（分栏线 + 代码行 + 预览行），≥ 28px 使用；
+            Brand.MarkSimpleBrush —— 简化画法（仅底座 + 内页），< 28px 使用，避免细节糊成一团。
+    -->
+
+    <!-- 品牌色（取自 icon.svg） -->
+    <Color x:Key="Brand.Color.Start">#FF3E90FF</Color>
+    <Color x:Key="Brand.Color.End">#FF0E5BC5</Color>
+
+    <SolidColorBrush x:Key="Brand.Brush.Ink" Color="#FF0E5BC5" />
+    <SolidColorBrush x:Key="Brand.Brush.Page" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="Brand.Brush.Rule" Color="#FFE1E8F2" />
+    <SolidColorBrush x:Key="Brand.Brush.Line" Color="#FFC8D3E0" />
+    <SolidColorBrush x:Key="Brand.Brush.Box" Color="#FFE8F1FF" />
+
+    <!-- 底座渐变：objectBoundingBox 的竖向线性渐变（SVG x1=0,y1=0 → x2=0,y2=1）。 -->
+    <LinearGradientBrush x:Key="Brand.Brush.Base"
+                         StartPoint="0.5,0"
+                         EndPoint="0.5,1">
+        <GradientStop Offset="0" Color="{StaticResource Brand.Color.Start}" />
+        <GradientStop Offset="1" Color="{StaticResource Brand.Color.End}" />
+    </LinearGradientBrush>
+
+    <!-- 完整画法（画布 256×256，内容界 20,20–236,236） -->
+    <DrawingBrush x:Key="Brand.MarkBrush"
+                  Viewbox="20,20,216,216"
+                  ViewboxUnits="Absolute"
+                  Viewport="0,0,1,1"
+                  ViewportUnits="RelativeToBoundingBox"
+                  Stretch="Uniform"
+                  TileMode="None">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <!-- 圆角方形底座 -->
+                <GeometryDrawing Brush="{StaticResource Brand.Brush.Base}">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="20,20,216,216" RadiusX="48" RadiusY="48" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+
+                <!-- 内页 -->
+                <GeometryDrawing Brush="{StaticResource Brand.Brush.Page}">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="56,56,144,144" RadiusX="14" RadiusY="14" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+
+                <!-- 分栏线 -->
+                <GeometryDrawing Brush="{StaticResource Brand.Brush.Rule}">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="127,68,2,120" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+
+                <!-- 左侧：源代码行 -->
+                <GeometryDrawing Brush="{StaticResource Brand.Brush.Ink}">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="72,80,42,8" RadiusX="4" RadiusY="4" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="{StaticResource Brand.Brush.Line}">
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <RectangleGeometry Rect="72,100,34,8" RadiusX="4" RadiusY="4" />
+                            <RectangleGeometry Rect="72,120,40,8" RadiusX="4" RadiusY="4" />
+                            <RectangleGeometry Rect="72,140,26,8" RadiusX="4" RadiusY="4" />
+                            <RectangleGeometry Rect="72,160,36,8" RadiusX="4" RadiusY="4" />
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+
+                <!-- 右侧：渲染预览 -->
+                <GeometryDrawing Brush="{StaticResource Brand.Brush.Ink}">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="142,80,42,12" RadiusX="4" RadiusY="4" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="{StaticResource Brand.Brush.Line}">
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <RectangleGeometry Rect="142,102,42,6" RadiusX="3" RadiusY="3" />
+                            <RectangleGeometry Rect="142,116,36,6" RadiusX="3" RadiusY="3" />
+                            <RectangleGeometry Rect="142,130,42,6" RadiusX="3" RadiusY="3" />
+                            <RectangleGeometry Rect="142,144,28,6" RadiusX="3" RadiusY="3" />
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+
+                <!-- 语义块（呼应 PRT 的语义盒子） -->
+                <GeometryDrawing Brush="{StaticResource Brand.Brush.Box}">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="142,158,42,18" RadiusX="4" RadiusY="4" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <!-- 简化画法：小尺寸（标题栏徽标等）专用 -->
+    <DrawingBrush x:Key="Brand.MarkSimpleBrush"
+                  Viewbox="20,20,216,216"
+                  ViewboxUnits="Absolute"
+                  Viewport="0,0,1,1"
+                  ViewportUnits="RelativeToBoundingBox"
+                  Stretch="Uniform"
+                  TileMode="None">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="{StaticResource Brand.Brush.Base}">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="20,20,216,216" RadiusX="48" RadiusY="48" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="{StaticResource Brand.Brush.Page}">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="56,56,144,144" RadiusX="14" RadiusY="14" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+</ResourceDictionary>

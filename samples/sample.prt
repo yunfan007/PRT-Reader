@@ -1,0 +1,153 @@
+::: meta
+title: MDP 全景演示
+subtitle: Markdown-Plus v1.2 · Core 与 EXT 特性演示
+author: 软体程式部
+date: 2026-09-13
+lang: zh-CN
+theme: default
+numeration: mixed
+toc: true
+tags: 演示, 示例
+glossary: MDP=Markdown-Plus 文档格式标准; EXT=扩展等级（Core 的超集）
+::: end meta
+
+# 概述
+
+MDP（Markdown-Plus）在标准 Markdown 基线上扩展了语义块、交叉引用、自动编号、
+完整表格与受限计算等能力。本文档演示本工具已实现的 Core 与 EXT 特性。
+
+> 本实现**不支持 COMP（受限计算）**：`{{ 表达式 }}` 与 `::: run` 等结构一律按
+> 《MDP 标准》第 13 章降级处理，既不作任何求值，也不丢失内容。
+
+## 行内标记（Core）
+
+**加粗**、*斜体*、***加粗斜体***、~~删除线~~、==高亮==、+下划线+、
+H~2~O 与 25^°C^、`行内代码`、键盘按键 [[kbd:Ctrl+S]]。
+
+前景色 [[color:red]]红色文字[[/color]]，背景色 [[bg:yellow]]黄色底纹[[/bg]]，
+字号 [[size:large]]放大一档[[/size]]；行内注释 %% 这段文字只在源码中可见 %%。
+
+普通链接：[示例站点](https://example.com/)。
+
+## 语义块（Core + EXT）
+
+::: note
+Core 语义块：备注（note）、警告（warning）、危险（danger）、注意（attention）、
+示例（example）、定义（definition）、引用（quote）、批注（comment）。
+::: end note
+
+::: tip
+EXT 语义块：信息（info）、提示（tip）、结果（result）、待办（task / todo）。
+::: end tip
+
+::: warning
+语义块只改变呈现外观，不改变文档语义（标准 8.3）。
+::: end warning
+
+## 列表与任务
+
+- 无序列表项一
+- 无序列表项二
+  - 嵌套项
+
+1. 有序列表项一
+2. 有序列表项二
+
+- [x] 已完成任务
+- [ ] 未完成任务
+
+## 简化表格（Core 管道表）
+
+| 季度 | 收入 | 备注 |
+| :--- | ---: | :---: |
+| Q1 | 100 | 含税 |
+| Q2 | 120 | 预估 |
+
+## 完整表格（EXT）
+
+::: table id="t-plan" caption="里程碑计划" align="center"
+| 阶段 | 主负责 | ++ |
+| 名称 | 部门 | 交付 |
+| :-- | :-: | :-: |
+| 需求 | 产品部 | 规格说明 |
+| 开发 | ^^ | 可运行版本 |
+| 测试 | 质量部 | 测试报告 |
+|==|
+| **合计** | 3 | 3 项 |
+::: end table
+
+表格的合并规则与自动编号见 [[ref:t-plan]]。
+
+## 章节与自动编号（EXT）
+
+::: section id="sec-design" title="设计要点"
+本章演示章节块的嵌套与自动编号。
+
+::: section id="sec-arch" title="架构分层"
+工程分为三层：Core（无界面依赖的解析与三格式导出）、App（WPF 原生界面）、
+Tests（单元测试）；模块之间依赖单向、职责单一。
+::: end section
+
+::: section id="sec-flow" title="处理流水线"
+词法分析 → 块解析 → 结构解析 → （计算阶段：本实现跳过）→ 样式 → 渲染。
+::: end section
+::: end section
+
+交叉引用：设计要点见 [[ref:sec-design]]，架构分层见 [[ref:sec-arch]]；
+术语写作 {MDP}，也可指定显示名：{MDP|Markdown-Plus}。
+
+## 目录（Core）
+
+[[contents depth=3 mode=numbered]]
+
+## 布局块（EXT）
+
+::: columns cols=2
+::: column
+左栏：分栏用于并排呈现并列内容。
+::: end column
+::: column
+右栏：窄屏渲染时可折叠为单列。
+::: end column
+::: end columns
+
+::: collapse title="点击展开：补充说明" default-open=false
+折叠块用于收纳次要内容，默认收起。
+::: end collapse
+
+::: tabs
+::: tab name="方案 A"
+方案 A 的说明。
+::: end tab
+::: tab name="方案 B"
+方案 B 的说明。
+::: end tab
+::: end tabs
+
+## 图与公式（EXT）
+
+::: figure id="fig-flow" caption="处理流水线示意"
+![流水线示意](assets/pipeline.png)
+::: end figure
+
+::: equation id="eq-euler" caption="欧拉恒等式"
+e^{i \pi} + 1 = 0
+::: end equation
+
+引用：[[ref:fig-flow]]、[[ref:eq-euler]]。
+
+## 脚注与降级演示
+
+脚注示例^[脚注按物理出现顺序编号；同一内容在多处引用时复用同一编号。]。
+
+插值按原文降级输出：值 = {{ 单价 * 数量 }}
+
+::: run
+// COMP 计算块：本工具不执行，仅保留源码并按标准第 13 章降级呈现
+let 总额 = 单价 * 数量;
+print(总额);
+::: end run
+
+::: refs
+设计 = sec-design | 设计要点
+::: end refs

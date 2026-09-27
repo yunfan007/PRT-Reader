@@ -1,0 +1,94 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    PRT 阅读器安装器（自研 WPF 安装器，单文件发布）。
+
+    三条硬约束（需求既定，改动前先读）：
+      1. **只发布单文件**——`PublishSingleFile=true` ＋ `SelfContained=true`，
+         publish 产物目录里必须只有一个 exe（自检用例 55 会强制校验这一点）。
+         「单文件」是发布口径而不是实现口径：内嵌的资源在运行时按需从程序集里取出。
+      2. **自带运行时**——目标机没有 .NET 桌面运行时也能装。实现口径是「智能判断」：
+         先探系统运行时，有就复用（安装包小、零副作用）；没有才把 content\runtime\
+         里的便携运行时释放到安装目录，并写用户级 DOTNET_ROOT（实测：这是 Windows 上
+         apphost 唯一认的自定义运行时定位方式——同目录 dotnet 目录与 per-user 注册表
+         InstallLocation 都不生效，见 docs\安装说明.md 的实测记录）。
+      3. **按用户安装**——一切写盘与注册表都在 HKCU / %LOCALAPPDATA% 之下，
+         不需要管理员权限，卸载时精确回滚（卸载器读 HKCU\Software\PRT Reader 的登记信息）。
+
+    内嵌素材由 build.ps1 的 publish 环节填进 content\（阅读器产物、便携运行时、卸载器），
+    本文件只负责把它们编成程序集资源；content\ 是构建期素材区，不入版本库。
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RootNamespace>Prt.Installer</RootNamespace>
+    <AssemblyName>PRT-Installer</AssemblyName>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+
+    <!-- 单文件发布：安装器自带运行时，目标机零前置依赖。 -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <!-- 单文件内的资源随 exe 走；不需要单独跟一个 .pdb 散布在发布目录。 -->
+    <DebugType>none</DebugType>
+    <!-- 包内文件一律按相对路径释放，由 EmbeddedFiles 解析；不随文件名约定漂移。 -->
+    <EnableDefaultItems>false</EnableDefaultItems>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Version>4.0.0</Version>
+    <FileVersion>4.0.0.0</FileVersion>
+    <Product>PRT 阅读器</Product>
+    <Company>Perisc Club</Company>
+    <Description>PRT 阅读器安装器（自带运行时，按用户安装）</Description>
+  </PropertyGroup>
+
+  <!-- 编译项（EnableDefaultItems=false 之后显式列出，顺序即依赖顺序）。 -->
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml" />
+    <!--
+      主题表直接写在 App.xaml 的 Application.Resources 里（见那里的注释：为什么不用
+      MergedDictionaries 外挂一个 Theming\*.xaml）。这里的 Page 项只列窗口与页面。
+    -->
+    <Page Include="MainWindow.xaml" />
+    <Page Include="Pages\WelcomePage.xaml" />
+    <Page Include="Pages\OptionsPage.xaml" />
+    <Page Include="Pages\ProgressPage.xaml" />
+    <Page Include="Pages\DonePage.xaml" />
+    <Compile Include="App.xaml.cs" />
+    <Compile Include="MainWindow.xaml.cs" />
+    <Compile Include="Pages\WelcomePage.xaml.cs" />
+    <Compile Include="Pages\OptionsPage.xaml.cs" />
+    <Compile Include="Pages\ProgressPage.xaml.cs" />
+    <Compile Include="Pages\DonePage.xaml.cs" />
+    <Compile Include="Install\*.cs" />
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
+
+  <!--
+    构建期素材：content\ 由 build.ps1 的 publish 环节填好。
+    LogicalName 统一加 "prt.installer.content." 前缀，EmbeddedFiles 按相对路径取流。
+    *.pdb 不内嵌（发布口径是单文件，多一个 pdb 就不成「只出一个 exe」）。
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="content\**\*" Exclude="content\**\*.pdb">
+      <LogicalName>prt.installer.content.%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!--
+    卸载器共用同一套关联/快捷方式实现：两个工程各自自包含发布，共享源码避免两处漂移。
+    （卸载器是框架依赖单文件，它随阅读器进安装目录，运行时由「系统运行时或安装目录自带运行时」提供。）
+  -->
+  <ItemGroup>
+    <Compile Include="..\Prt.Uninstaller\Platform\ShortcutFactory.cs" Link="Platform\ShortcutFactory.cs" />
+    <Compile Include="..\Prt.Uninstaller\Platform\FileAssociation.cs" Link="Platform\FileAssociation.cs" />
+    <Compile Include="..\Prt.Uninstaller\Platform\InstallEntry.cs" Link="Platform\InstallEntry.cs" />
+    <Compile Include="..\Prt.Uninstaller\Platform\RuntimeLocator.cs" Link="Platform\RuntimeLocator.cs" />
+  </ItemGroup>
+
+</Project>

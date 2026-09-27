@@ -1,0 +1,101 @@
+<Window x:Class="Prt.App.Views.SplashWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:Prt.App.Theming"
+        Width="480"
+        Height="290"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Topmost="True"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStartupLocation="CenterScreen"
+        Opacity="1">
+
+    <!--
+        启动界面：自定义图片存在时整幅显示该图；否则显示内置画法（渐变底 + 标记 + 程序名）。
+        底部条固定显示版本号与「正在装载界面…」，让启动过程有明确交代。
+    -->
+    <Border Background="{DynamicResource App.WindowBg}"
+            BorderBrush="{DynamicResource App.Border}"
+            BorderThickness="1"
+            CornerRadius="10">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="18" ShadowDepth="0" Opacity="0.28" />
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- 图片区 -->
+            <Grid Grid.Row="0">
+                <Image x:Name="SplashImage" Stretch="UniformToFill" />
+
+                <!-- 内置画法：仅在未设置自定义图片时显示 -->
+                <Border x:Name="BuiltinArt" Background="{DynamicResource App.SplashArt}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <!-- 视觉中心：品牌标（与窗口图标同源，见 Theming/Brand.xaml） -->
+                        <Rectangle Width="86"
+                                   Height="86"
+                                   Fill="{StaticResource Brand.MarkBrush}"
+                                   HorizontalAlignment="Center"
+                                   SnapsToDevicePixels="True">
+                            <Rectangle.Effect>
+                                <DropShadowEffect BlurRadius="26"
+                                                  ShadowDepth="3"
+                                                  Direction="270"
+                                                  Opacity="0.22"
+                                                  Color="#0E5BC5" />
+                            </Rectangle.Effect>
+                        </Rectangle>
+
+                        <TextBlock Margin="0,20,0,0"
+                                   FontSize="23"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource App.Text}"
+                                   HorizontalAlignment="Center"
+                                   Text="{loc:Loc app.name}" />
+
+                        <Border Width="36"
+                                Height="2"
+                                Margin="0,13,0,0"
+                                CornerRadius="1"
+                                HorizontalAlignment="Center"
+                                Background="{StaticResource Brand.Brush.Base}" />
+
+                        <TextBlock x:Name="BuiltinSubtitle"
+                                   Margin="0,13,0,0"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource App.SubtleText}"
+                                   HorizontalAlignment="Center"
+                                   Text="{loc:Loc splash.loading}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- 底部条：版本号 -->
+            <Border Grid.Row="1"
+                    Padding="16,10"
+                    Background="{DynamicResource App.PanelBg}"
+                    BorderBrush="{DynamicResource App.Border}"
+                    BorderThickness="0,1,0,0"
+                    CornerRadius="0,0,10,10">
+                <Grid>
+                    <TextBlock x:Name="VersionText"
+                               HorizontalAlignment="Left"
+                               FontSize="12"
+                               Foreground="{DynamicResource App.SubtleText}" />
+                    <TextBlock x:Name="StatusText"
+                               HorizontalAlignment="Right"
+                               FontSize="12"
+                               Foreground="{DynamicResource App.SubtleText}"
+                               Text="{loc:Loc splash.loading}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

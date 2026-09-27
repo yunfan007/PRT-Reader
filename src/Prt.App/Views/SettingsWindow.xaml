@@ -1,0 +1,209 @@
+<Window x:Class="Prt.App.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:Prt.App.Theming"
+        Title="{loc:Loc settings.title}"
+        Height="600"
+        Width="660"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Background="{DynamicResource App.WindowBg}"
+        Foreground="{DynamicResource App.Text}"
+        FontSize="13">
+
+    <!--
+        实时预览：任一选项变化即把整份草稿交给主窗口应用（不落盘）；
+        点「确定」由主窗口写入 settings.json，取消 / 直接关闭则回滚（见 MainWindow.OnSettingsClick）。
+    -->
+    <DockPanel Margin="16">
+
+        <!-- 底部按钮 -->
+        <StackPanel DockPanel.Dock="Bottom"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,14,0,0">
+            <Button Content="{loc:Loc common.ok}"
+                    Width="96"
+                    Height="32"
+                    IsDefault="True"
+                    Click="OnConfirmClick" />
+            <Button Content="{loc:Loc common.cancel}"
+                    Width="96"
+                    Height="32"
+                    Margin="10,0,0,0"
+                    IsCancel="True" />
+        </StackPanel>
+
+        <TextBlock DockPanel.Dock="Bottom"
+                   Margin="0,10,0,0"
+                   TextWrapping="Wrap"
+                   Foreground="{DynamicResource App.SubtleText}"
+                   Text="{loc:Loc settings.footer}" />
+
+        <TabControl x:Name="MainTabs">
+            <!-- ── 外观 ── -->
+            <TabItem Header="{loc:Loc settings.tab.appearance}">
+                <StackPanel Margin="16">
+                    <TextBlock Text="{loc:Loc settings.interface}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                    <ComboBox x:Name="InterfaceBox"
+                              Width="260"
+                              HorizontalAlignment="Left"
+                              SelectionChanged="OnAnySettingChanged">
+                        <ComboBoxItem Content="{loc:Loc settings.interface.light}" />
+                        <ComboBoxItem Content="{loc:Loc settings.interface.dark}" />
+                    </ComboBox>
+                    <TextBlock Text="{loc:Loc settings.interface.hint}"
+                               Margin="0,4,0,18"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource App.SubtleText}" />
+
+                    <TextBlock Text="{loc:Loc settings.previewtheme}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                    <ComboBox x:Name="PreviewThemeBox"
+                              Width="260"
+                              HorizontalAlignment="Left"
+                              SelectionChanged="OnAnySettingChanged">
+                        <ComboBoxItem Content="{loc:Loc settings.previewtheme.follow}" />
+                        <ComboBoxItem Content="{loc:Loc settings.previewtheme.default}" />
+                        <ComboBoxItem Content="{loc:Loc settings.previewtheme.dark}" />
+                        <ComboBoxItem Content="{loc:Loc settings.previewtheme.print}" />
+                        <ComboBoxItem Content="{loc:Loc settings.previewtheme.accessible}" />
+                    </ComboBox>
+                    <TextBlock Text="{loc:Loc settings.previewtheme.hint}"
+                               Margin="0,4,0,18"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource App.SubtleText}" />
+
+                    <TextBlock Text="{loc:Loc settings.zoom}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                    <Grid Width="320" HorizontalAlignment="Left">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Slider x:Name="ZoomSlider"
+                                Grid.Column="0"
+                                Minimum="50"
+                                Maximum="200"
+                                TickFrequency="10"
+                                IsSnapToTickEnabled="True"
+                                VerticalAlignment="Center"
+                                ValueChanged="OnZoomSliderChanged" />
+                        <TextBlock x:Name="ZoomText"
+                                   Grid.Column="1"
+                                   Width="52"
+                                   Margin="10,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Text="100%" />
+                    </Grid>
+                </StackPanel>
+            </TabItem>
+
+            <!-- ── 编辑 ── -->
+            <TabItem Header="{loc:Loc settings.tab.editor}">
+                <StackPanel Margin="16">
+                    <CheckBox x:Name="WordWrapBox"
+                              Content="{loc:Loc settings.wordwrap}"
+                              Margin="0,0,0,16"
+                              Click="OnAnySettingChanged" />
+                    <CheckBox x:Name="StrictBox"
+                              Content="{loc:Loc settings.strict}"
+                              Margin="0,0,0,4"
+                              Click="OnAnySettingChanged" />
+                    <TextBlock TextWrapping="Wrap"
+                               Margin="26,0,0,20"
+                               Foreground="{DynamicResource App.SubtleText}"
+                               Text="{loc:Loc settings.strict.hint}" />
+
+                    <TextBlock Text="{loc:Loc settings.viewmode}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                    <ComboBox x:Name="ViewModeBox"
+                              Width="260"
+                              HorizontalAlignment="Left"
+                              SelectionChanged="OnAnySettingChanged">
+                        <ComboBoxItem Content="{loc:Loc settings.viewmode.editor}" />
+                        <ComboBoxItem Content="{loc:Loc settings.viewmode.split}" />
+                        <ComboBoxItem Content="{loc:Loc settings.viewmode.preview}" />
+                    </ComboBox>
+                    <TextBlock Text="{loc:Loc settings.viewmode.hint}"
+                               Margin="0,4,0,0"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource App.SubtleText}" />
+                </StackPanel>
+            </TabItem>
+
+            <!-- ── 启动与语言 ── -->
+            <TabItem Header="{loc:Loc settings.tab.startup}">
+                <StackPanel Margin="16">
+                    <CheckBox x:Name="SplashBox"
+                              Content="{loc:Loc settings.splash.enable}"
+                              Margin="0,0,0,16"
+                              Click="OnAnySettingChanged" />
+
+                    <TextBlock Text="{loc:Loc settings.splash.image}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                    <Border Width="284"
+                            Height="142"
+                            HorizontalAlignment="Left"
+                            Background="{DynamicResource App.PanelAltBg}"
+                            BorderBrush="{DynamicResource App.ControlStroke}"
+                            BorderThickness="1"
+                            CornerRadius="6">
+                        <Grid>
+                            <!-- 自定义图片存在时显示它；否则显示「内置图片」的画法示意。 -->
+                            <Image x:Name="SplashPreview" Stretch="UniformToFill" />
+                            <StackPanel x:Name="SplashBuiltinPreview"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                <Border Width="34"
+                                        Height="34"
+                                        Background="{DynamicResource App.Accent}"
+                                        CornerRadius="8"
+                                        HorizontalAlignment="Center">
+                                    <TextBlock Text="P"
+                                               FontSize="19"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource App.OnAccent}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock x:Name="BuiltinSplashLabel"
+                                           Margin="0,8,0,0"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource App.SubtleText}"
+                                           HorizontalAlignment="Center"
+                                           Text="{loc:Loc settings.splash.builtin}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button Content="{loc:Loc common.browse}"
+                                Width="110"
+                                Height="30"
+                                Click="OnBrowseSplashClick" />
+                        <Button Content="{loc:Loc common.reset}"
+                                Width="110"
+                                Height="30"
+                                Margin="10,0,0,0"
+                                Click="OnResetSplashClick" />
+                    </StackPanel>
+                    <TextBlock Text="{loc:Loc settings.splash.hint}"
+                               Margin="0,8,0,20"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource App.SubtleText}" />
+
+                    <TextBlock Text="{loc:Loc settings.language}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                    <ComboBox x:Name="LanguageBox"
+                              Width="260"
+                              HorizontalAlignment="Left"
+                              SelectionChanged="OnAnySettingChanged">
+                        <ComboBoxItem Content="{loc:Loc settings.language.system}" />
+                        <ComboBoxItem Content="{loc:Loc settings.language.zh}" />
+                        <ComboBoxItem Content="{loc:Loc settings.language.en}" />
+                    </ComboBox>
+                    <TextBlock Text="{loc:Loc settings.language.hint}"
+                               Margin="0,4,0,0"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource App.SubtleText}" />
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

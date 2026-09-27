@@ -1,0 +1,28 @@
+# 构建产物与临时文件不入库
+bin/
+obj/
+publish/
+artifacts/
+*.log
+selftest-report.txt
+
+# 本地工作日志（工具私有数据，不随开源发布）
+.workbuddy/memory/
+
+# Visual Studio 用户态文件
+.vs/
+*.user
+*.suo
+*.userosscache
+
+# 密钥与签名材料：私钥、签发容器一律不入库
+# 仓库只保留公钥（keys/license.public.xml）——它是随程序分发的验签依据。
+# 私钥由 Prt.Tools.LicenseGen 现生成即可（RSA-2048 密钥对自带导出），
+# 无需、也不应入库：一旦进过版本库，即便后续删除，历史里仍可取出。
+keys/license.private.xml
+keys/*.private.xml
+keys/*.pfx
+*.pfx
+*.snk
+*.key
+*.pem

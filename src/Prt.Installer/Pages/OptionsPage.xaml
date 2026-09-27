@@ -1,0 +1,63 @@
+<UserControl x:Class="Prt.Installer.Pages.OptionsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="OnLoaded">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="4,8,4,0">
+
+            <TextBlock Text="选择安装位置与组件" Style="{StaticResource I.Title}" />
+            <TextBlock Text="所有内容只写入以下目录及其下的注册表项（当前用户），卸载时可完整回滚。"
+                       Style="{StaticResource I.Subtitle}" Margin="0,6,0,0" />
+
+            <!-- 安装位置 -->
+            <Border Style="{StaticResource I.Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="安装位置" Style="{StaticResource I.SectionTitle}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="LocationBox" Style="{StaticResource I.TextBox}" />
+                        <Button x:Name="BrowseButton" Grid.Column="2" Content="浏览…"
+                                Style="{StaticResource I.SecondaryButton}"
+                                Click="OnBrowse" VerticalAlignment="Center" />
+                    </Grid>
+                    <TextBlock x:Name="LocationHint" Text="" Style="{StaticResource I.Subtitle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+
+            <!-- 组件与关联 -->
+            <Border Style="{StaticResource I.Card}" Margin="0,12,0,0">
+                <StackPanel>
+                    <TextBlock Text="组件与关联" Style="{StaticResource I.SectionTitle}" />
+                    <CheckBox x:Name="AssociateBox" Content="关联 .prt / .psr / .mdp 文件（双击即用可视化模式打开）"
+                              Style="{StaticResource I.CheckBox}" IsChecked="True" />
+                    <CheckBox x:Name="ShellMenuBox" Content="资源管理器右键菜单与「打开方式」列表项"
+                              Style="{StaticResource I.CheckBox}" IsChecked="True" />
+                    <CheckBox x:Name="DesktopBox" Content="桌面快捷方式"
+                              Style="{StaticResource I.CheckBox}" IsChecked="True" />
+                    <CheckBox x:Name="SamplesBox" Content="示例文档与使用指南、教程"
+                              Style="{StaticResource I.CheckBox}" IsChecked="True" />
+                </StackPanel>
+            </Border>
+
+            <!-- 运行时 -->
+            <Border Style="{StaticResource I.Card}" Margin="0,12,0,0">
+                <StackPanel>
+                    <TextBlock Text=".NET 运行时" Style="{StaticResource I.SectionTitle}" />
+                    <RadioButton x:Name="RuntimeAuto" Content="自动：系统已有则复用，没有才携带（推荐）"
+                                 Style="{StaticResource I.RadioButton}" IsChecked="True" GroupName="Runtime" />
+                    <RadioButton x:Name="RuntimePortable" Content="总是携带便携运行时（安装包更大，但完全脱离系统环境）"
+                                 Style="{StaticResource I.RadioButton}" GroupName="Runtime" />
+                    <RadioButton x:Name="RuntimeSystem" Content="只使用系统运行时（安装包最小，需目标机已装 .NET 8 桌面运行时）"
+                                 Style="{StaticResource I.RadioButton}" GroupName="Runtime" />
+                    <TextBlock x:Name="RuntimeHint" Style="{StaticResource I.Subtitle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+
+            <TextBlock x:Name="SizeHint" Text="" Style="{StaticResource I.Subtitle}" Margin="0,14,0,0" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

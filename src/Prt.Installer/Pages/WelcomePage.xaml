@@ -1,0 +1,59 @@
+<UserControl x:Class="Prt.Installer.Pages.WelcomePage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="4,8,4,0">
+
+            <TextBlock Text="PRT 阅读器安装程序" Style="{StaticResource I.Title}" />
+            <TextBlock Text="把 PRT / PSR / MDP 三类文档接入本机编辑器：安装后双击文件即可用可视化模式打开。"
+                       Style="{StaticResource I.Subtitle}" Margin="0,8,0,0" />
+
+            <Grid Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="14" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="14" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource I.Card}">
+                    <StackPanel>
+                        <TextBlock Text="① 选安装位置" Style="{StaticResource I.SectionTitle}" />
+                        <TextBlock Text="默认装在 %LOCALAPPDATA%\PRT Reader，按用户安装，不给系统目录添麻烦，也不需要管理员权限。"
+                                   Style="{StaticResource I.Subtitle}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource I.Card}">
+                    <StackPanel>
+                        <TextBlock Text="② 自带运行时" Style="{StaticResource I.SectionTitle}" />
+                        <TextBlock Text="检测到系统没有 .NET 运行时时会自动携带一份，保证完全没有开发环境的机器也能跑；系统已有则直接复用。"
+                                   Style="{StaticResource I.Subtitle}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="4" Style="{StaticResource I.Card}">
+                    <StackPanel>
+                        <TextBlock Text="③ 自带卸载器" Style="{StaticResource I.SectionTitle}" />
+                        <TextBlock Text="卸载程序随安装落进安装目录，卸载时清理文件关联、快捷方式与运行时环境变量。"
+                                   Style="{StaticResource I.Subtitle}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Style="{StaticResource I.Card}" Margin="0,16,0,0" Background="#FFEDF3FA">
+                <StackPanel>
+                    <TextBlock Text="安装后会做这些事" Style="{StaticResource I.SectionTitle}" />
+                    <TextBlock Text="·  把阅读器（含示例、帮助文档）写进安装目录"
+                               Foreground="#FF1B2733" FontSize="13" Margin="0,2" />
+                    <TextBlock Text="·  把 .prt / .psr / .mdp 关联到阅读器，并加入「打开方式」与右键菜单"
+                               Foreground="#FF1B2733" FontSize="13" Margin="0,2" />
+                    <TextBlock Text="·  创建开始菜单项与卸载项（桌面快捷方式可选）"
+                               Foreground="#FF1B2733" FontSize="13" Margin="0,2" />
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

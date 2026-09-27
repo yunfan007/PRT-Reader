@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Prt.Tools.LicenseGen：PRT 编辑器的离线激活码生成器（内部工具，不随编辑器分发）。
+    双模式：
+      无参数启动  → WinForms 图形界面（签发 / 校验 / 生成密钥对）
+      带参数启动  → 命令行模式（原有用法不变）：
+        keygen [目录]        生成一对新的 RSA 密钥（私钥务必保密）
+        gen                  签发激活码：-n 用户名 -e 邮箱 -l 等级，可选 -d 天数（缺省永久）、-k 私钥路径
+        verify               校验激活码：激活码本身，可选 -p 公钥路径
+      等级：Free | Standard | Professional
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>Prt.Tools.LicenseGen</RootNamespace>
+    <AssemblyName>Prt.Tools.LicenseGen</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+</Project>

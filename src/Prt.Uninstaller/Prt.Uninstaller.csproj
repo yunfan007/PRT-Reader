@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    PRT 阅读器卸载器，随安装落到 <安装目录>\uninstall.exe。
+
+    与安装器不同的发布口径：**框架依赖单文件**。理由——卸载器是安装目录里的常驻文件，
+    若做成自包含（+160 MB）会让安装包凭空大出一份；而它运行时需要的运行时
+    「系统里有就用、没有则安装器已写下 DOTNET_ROOT 指向便携运行时」，两条路都必然存在。
+    代价是 uninstall.exe 不能脱离安装目录单独分发——这也是它不进 publish\ 的唯一原因。
+
+    自删：卸载末尾把自己的可执行文件移到 %TEMP% 后由那个副本收尾（删安装目录、删自身），
+    全程不起 cmd、不闪黑窗口。
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RootNamespace>Prt.Uninstaller</RootNamespace>
+    <AssemblyName>uninstall</AssemblyName>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <EnableDefaultItems>false</EnableDefaultItems>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Version>4.0.0</Version>
+    <FileVersion>4.0.0.0</FileVersion>
+    <Product>PRT 阅读器</Product>
+    <Company>Perisc Club</Company>
+    <Description>卸载 PRT 阅读器</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml" />
+    <!-- 主题表直接写在 App.xaml 的 Application.Resources 里（见那里的注释）。 -->
+    <Page Include="MainWindow.xaml" />
+    <Compile Include="App.xaml.cs" />
+    <Compile Include="MainWindow.xaml.cs" />
+    <Compile Include="UninstallPlan.cs" />
+    <Compile Include="Platform\*.cs" />
+    <!-- 与安装器共享的安装登记读写：只取这两个数据类型，不链 InstallPlan 的执行体 -->
+    <Compile Include="..\Prt.Installer\Install\InstallStateSnapshot.cs" Link="Install\InstallStateSnapshot.cs" />
+    <Compile Include="..\Prt.Installer\Install\InstallState.cs" Link="Install\InstallState.cs" />
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
+
+</Project>

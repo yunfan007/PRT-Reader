@@ -1,0 +1,91 @@
+<!--
+    StartupUri 文档的根元素在 Application.DoStartup 阶段加载，这一层没法延迟，
+    画刷属性上写 {StaticResource …} 会拿那个字符串本身去 Brush.Parse，直接
+    “FormatException: 令牌无效”崩在启动。故下面 Background 是字面量；
+    画刷键照常在 App.Resources 里，子级元素随便引用。
+-->
+<Window x:Class="Prt.Installer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PRT 阅读器 安装程序"
+        Width="860" Height="600"
+        MinWidth="860" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#FFF4F7FB"
+        FontFamily="Segoe UI, Microsoft YaHei, PingFang SC">
+
+    <Grid x:Name="Root" DataContext="{Binding ElementName=Root}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="104" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="66" />
+        </Grid.RowDefinitions>
+
+        <!-- 品牌头：与阅读器同一套品牌渐变 -->
+        <Border Grid.Row="0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Offset="0" Color="#FF3E90FF" />
+                    <GradientStop Offset="1" Color="#FF0E5BC5" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid Margin="28,0">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="安装 PRT 阅读器" FontSize="24" FontWeight="SemiBold" Foreground="White" />
+                    <TextBlock x:Name="HeaderSubtitle"
+                               Text="按用户安装 · 无需管理员权限 · 自带卸载器"
+                               FontSize="13" Foreground="#FFDCE9FB" Margin="0,4,0,0" />
+                </StackPanel>
+                <Rectangle Width="64" Height="64" HorizontalAlignment="Right" VerticalAlignment="Center" Fill="White" Opacity="0.22" RadiusX="12" RadiusY="12" />
+            </Grid>
+        </Border>
+
+        <!-- 步骤条 -->
+        <ItemsControl x:Name="StepBar" Grid.Row="1" Margin="28,18,28,0" ItemsSource="{Binding Steps}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid Width="180">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Ellipse Width="24" Height="24"
+                                 Fill="{Binding DotFill}" Stroke="{Binding DotStroke}" StrokeThickness="1.5" />
+                        <TextBlock x:Name="StepIndex" Text="{Binding Index}"
+                                   Foreground="{Binding DotForeground}" FontWeight="SemiBold" FontSize="12"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Rectangle Grid.Column="1" Height="2" Fill="{Binding BarFill}" VerticalAlignment="Center" Margin="8,0,0,0" />
+                        <TextBlock Grid.Column="0" Grid.Row="1"
+                                   Grid.ColumnSpan="2"
+                                   Text="{Binding Name}"
+                                   Foreground="{Binding LabelColor}" FontSize="12"
+                                   VerticalAlignment="Center" Margin="0,8,0,0"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- 内容区 -->
+        <Border Grid.Row="2" Margin="28,10,28,0" Background="Transparent">
+            <Frame x:Name="ContentFrame" Background="Transparent" />
+        </Border>
+
+        <!-- 底栏 -->
+        <Border Grid.Row="3" Background="White" BorderBrush="#FFE6ECF4" BorderThickness="0,1,0,0">
+            <Grid Margin="28,0">
+                <TextBlock x:Name="StatusText" Text="" VerticalAlignment="Center"
+                           Foreground="#FF5B6B7C" FontSize="12"
+                           TextTrimming="CharacterEllipsis" />
+                <StackPanel x:Name="ActionBar" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

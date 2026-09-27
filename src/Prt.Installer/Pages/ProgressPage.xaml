@@ -1,0 +1,39 @@
+<UserControl x:Class="Prt.Installer.Pages.ProgressPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="4,12,4,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="PhaseText" Text="准备…" FontSize="15" FontWeight="SemiBold"
+                   Foreground="#FF1B2733" />
+
+        <ProgressBar x:Name="Overall"
+                     Grid.Row="1"
+                     Height="6"
+                     Margin="0,12,0,0"
+                     IsIndeterminate="True"
+                     Foreground="#FF0E5BC5" />
+
+        <Border Grid.Row="2"
+                Style="{StaticResource I.Card}"
+                Margin="0,16,0,0"
+                HorizontalAlignment="Stretch">
+            <ListBox x:Name="LogList"
+                     BorderThickness="0"
+                     Background="Transparent"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" FontSize="12"
+                                   Foreground="#FF5B6B7C"
+                                   TextWrapping="Wrap" Margin="0,2" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+    </Grid>
+</UserControl>

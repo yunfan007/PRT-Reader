@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Prt.Core：PRT 语言处理核心库。
+    职责：词法分析、语法解析（块级/行内）、结构解析（编号与交叉引用）、
+          主题与命名色、导出渲染（HTML / 纯文本 / Markdown 降级）。
+    约束：本工程仅依赖 .NET BCL，不引用任何 UI 框架，保证高内聚、低耦合。
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Prt.Core</RootNamespace>
+    <AssemblyName>Prt.Core</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+</Project>

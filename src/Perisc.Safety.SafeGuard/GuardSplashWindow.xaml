@@ -1,0 +1,131 @@
+<Window x:Class="Perisc.Safety.SafeGuard.GuardSplashWindow"
+        x:ClassModifier="internal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="安全系统启动中"
+        Width="460"
+        Height="268"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStartupLocation="CenterScreen"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display"
+        Opacity="1">
+
+    <!--
+        「安全系统启动中」启动界面：只在双击启动时出现（判定见 GuardSplash）。
+        版面沿用主程序启动界面的视觉语言：品牌渐变底 + 品牌标 + 标题 + 品牌短线 + 底部信息条。
+
+        刻意**不置顶**（Topmost 保持默认 false），这不是疏忽：
+        「至少显示 800 ms」由**顺序**保证——启动器在本界面显示满 800 ms 之后才启动主程序
+        （见 GuardSplash.EnsureMinimumVisibleAsync），故这段时间内屏幕上没有第二个窗口能盖住它。
+        不置顶则另外躲开另一头：置顶会把主程序自己的启动画面（480x290、Topmost）压下去，
+        更糟的是会压住**需要用户操作的**「安全模块 · 请求授权」弹窗——PSS 要求界面不得妨碍
+        裁决交互。不置顶时，主程序的窗口一出现就自然盖住本界面，接力反而是无缝的；
+        若主程序始终不接入，本界面也只是退到后面，不会挡住任何东西。
+
+        实测（2026-09-26，双击等价）：本界面 1.11 s 出现、2.49 s 消失（可见 1.38 s），
+        阅读器首个窗口 2.59 s 才出现——「被别的窗口盖住」比「首次可见」晚 1.48 s。
+
+        配色是**固定值**，不跟随界面明暗设置：启动器不读主程序的设置文件
+        （那会让"监护者"反向依赖"被监护者"），而品牌色本身也不随主题变化。
+        因此这里直接写成字面量，与 Theming/Brand.xaml 的品牌色一致：
+          品牌渐变 #3E90FF → #0E5BC5    品牌墨色 #0E5BC5
+          启动图渐变 #E6F1FB → #FBFDFF   底条 #FAFAFA   描边 #E5E5E5   正文 #1B1B1B   次要 #5D5D5D
+
+        这里不做进度动画、不显示百分比：启动器无法预知主程序的装载耗时，
+        给出假进度比不给更坏。画面下方的阶段文字反映的是**真实阶段**。
+    -->
+    <Border Background="#FFFFFF"
+            BorderBrush="#E5E5E5"
+            BorderThickness="1"
+            CornerRadius="10">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="18" ShadowDepth="0" Opacity="0.28" />
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- 主区：品牌标 + 标题 + 品牌短线 + 阶段文字 -->
+            <Border Grid.Row="0" CornerRadius="9,9,0,0">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Offset="0" Color="#E6F1FB" />
+                        <GradientStop Offset="1" Color="#FBFDFF" />
+                    </LinearGradientBrush>
+                </Border.Background>
+
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <!-- 品牌标：与 exe 图标同源（Assets/app.ico，由代码从嵌入资源取最大帧） -->
+                    <Image x:Name="BrandMark"
+                           Width="72"
+                           Height="72"
+                           Stretch="Uniform"
+                           HorizontalAlignment="Center"
+                           RenderOptions.BitmapScalingMode="HighQuality">
+                        <Image.Effect>
+                            <DropShadowEffect BlurRadius="24"
+                                              ShadowDepth="3"
+                                              Direction="270"
+                                              Opacity="0.22"
+                                              Color="#0E5BC5" />
+                        </Image.Effect>
+                    </Image>
+
+                    <TextBlock Margin="0,16,0,0"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               Foreground="#0E5BC5"
+                               HorizontalAlignment="Center"
+                               Text="安全系统启动中" />
+
+                    <Border Width="36"
+                            Height="2"
+                            Margin="0,12,0,0"
+                            CornerRadius="1"
+                            HorizontalAlignment="Center">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Offset="0" Color="#3E90FF" />
+                                <GradientStop Offset="1" Color="#0E5BC5" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+
+                    <!-- 阶段文字：由 GuardSplash.Stage 推进，内容是真实阶段 -->
+                    <TextBlock x:Name="StageText"
+                               Margin="0,12,0,0"
+                               FontSize="12"
+                               Foreground="#5D5D5D"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <!-- 底部信息条：交代这是什么程序、以什么方式接入 -->
+            <Border Grid.Row="1"
+                    Padding="16,9"
+                    Background="#FAFAFA"
+                    BorderBrush="#E5E5E5"
+                    BorderThickness="0,1,0,0"
+                    CornerRadius="0,0,9,9">
+                <Grid>
+                    <TextBlock HorizontalAlignment="Left"
+                               FontSize="11"
+                               Foreground="#5D5D5D"
+                               Text="宿主启动器（PSS 模块三）" />
+                    <TextBlock HorizontalAlignment="Right"
+                               FontSize="11"
+                               Foreground="#5D5D5D"
+                               Text="接入模式 A" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

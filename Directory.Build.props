@@ -1,0 +1,63 @@
+<Project>
+
+  <!--
+    全仓统一的内置分析器门禁（CRS 9.6.4 D-17）。
+    各条规则的取舍、理由与当前基线计数见 docs/分析器门禁.md；
+    严重级别映射见仓库根 .editorconfig。改动任一处须同步另一处。
+
+    为什么不是 AnalysisMode=All：All 会把全部内置规则一起打开，在本仓库实测
+    358 处唯一命中、分布在 25 条规则上；其中 296 处（约 83%）落在与本工程**已经
+    明文采纳**的取舍直接冲突的规则上（例如 CA1031「不要捕获通用异常」与"捕获-降级
+    并写明理由"的策略、CA1303「不要把字面量传给本地化参数」与自建 Localizer、
+    CA2000/CA2213/CA1001「必须释放」与"纯托管对象依赖 GC"）。
+    一次性把它们全部清零等于推翻既有决定，而不是改善代码。
+    因此这里取"推荐集合"作基线，再用 .editorconfig 把真正该拦的规则提到
+    error、把已论证不适用的规则关掉，其余维持默认级别作为"棘轮"（只降不升）。
+  -->
+  <PropertyGroup>
+    <AnalysisMode>Recommended</AnalysisMode>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!--
+      门禁由 .editorconfig 中的 dotnet_diagnostic.*.severity = error 承担，
+      不开启全局「警告即错误」：XAML 生成物（obj/**/*.g.cs）与第三方目标的
+      告警不在本工程控制范围内，全局开关会把它们一并升级为编译失败。
+    -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+
+    <!--
+      自包含发布所需的 Runtime Pack 一律禁止下载：它只以 NuGet 包形式分发，
+      与本仓库「零外部 NuGet 包 + 完全离线」的约束直接冲突。这里直接切断，
+      使 -PublishMode self-contained 明确失败（脚本另有前置检测给出可读提示），
+      而不是悄悄发起网络请求，或悄悄依赖某个人的本地缓存。
+
+      注意不要顺手把 EnableTargetingPackDownload / EnableAppHostPackDownload
+      也关掉：SDK 会按目标框架的**最新补丁版本**解析 Microsoft.NETCore.App.Ref
+      （net8.0 目前为 8.0.31），而本机 SDK 自带的可能低一个补丁（如 8.0.22）。
+      关掉下载后 SDK 不会回退到已安装的旧版本，而是直接报 NETSDK1127
+      「未安装目标包」——实测会连本机都编不过。保持默认（允许下载）时，
+      装了 .NET 8 SDK 的机器用自己的那一份即可，无需联网。
+    -->
+    <EnableRuntimePackDownload>false</EnableRuntimePackDownload>
+
+    <!--
+      目标包（Targeting Pack）与 apphost 随仓库分发，不再依赖任何人的本地环境。
+      为什么：SDK 按目标框架的**最新补丁版本**解析 Microsoft.NETCore.App.Ref 等包
+      （net8.0 目前是 8.0.31），而这个版本只随「当时的 SDK」一起安装。用别的版本
+      SDK 构建时它就只能去 NuGet 下载，可本仓库 nuget.config 已 <clear/> 全部包源——
+      于是出现了「这台机器能编、换一台就 NU1101」的情况，差别只在于某台机器的
+      个人缓存里恰好躺着那个版本。这是环境问题，不是代码问题，但不该留给运气。
+
+      改法：把需要的包按 SDK 的 packs 目录结构放进 libs\packs\（只保留 ref / data /
+      runtimes，去掉 nupkg 与许可证等无关文件，约 71 MB），再把查找根目录指过来。
+      这样**任何**安装了 .NET SDK 的机器都能构建，与装的是哪个版本无关，
+      也不需要联网，更不依赖个人缓存。
+
+      维护：Microsoft 发布新的 8.0 补丁后，若 SDK 开始索取更高版本（日志会明确写出
+      版本号），按同样结构拷一份新版本进来即可；旧版本可以留着，不影响。
+    -->
+    <NetCoreTargetingPackRoot>$(MSBuildThisFileDirectory)libs\packs\</NetCoreTargetingPackRoot>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,73 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    宿主启动器（PSS 模块三）：接入程序的唯一启动入口。
+
+    · OutputType 是 WinExe（GUI 子系统），不是 Exe（控制台子系统）——2026-09-26 更正。
+      控制台子系统意味着「双击时系统必定为它建一个控制台窗口」，而那个窗口在
+      Windows Terminal（ConPTY）作默认终端时**藏不掉**：窗口归 WindowsTerminal.exe 所有，
+      进程内 GetConsoleWindow() 只是自己的一个 0×0 消息窗，ShowWindow 对它无效
+      （实测：窗口全程可见 11.8 s 未消失）。改成 GUI 子系统后系统压根不建控制台，
+      任何终端宿主下都不会有窗口出现。
+      代价与补偿：命令行用法由 GuardConsole.AttachToParentConsole() 找回父控制台并重接标准流，
+      输出照旧可见；但 shell 不再等待本进程（脚本要用 Start-Process -Wait / Process.WaitForExit）。
+      注意黑窗口会「转移」：本进程没有控制台之后，GuardLauncher 拉起的 dotnet 宿主
+      （控制台子系统程序）会被系统分配一个**新的**可见控制台——所以图形路径必须给它
+      CreateNoWindow（见 GuardLauncher.Launch 的 graphical 参数），命令行路径则不加，
+      让宿主继承已附上的父控制台。任何一层漏掉，黑框都会在那一层重新冒出来。
+      详见 docs/设计取舍.md 第 10 条。
+
+    · 目标框架 net8.0-windows + UseWPF：双击启动时显示「安全系统启动中」图形界面
+      （见 GuardSplash / GuardSplashWindow）。启动器本来就已经只能在 Windows 上工作
+      （作业对象终止、控制台附加、系统弹窗都是 Windows 专有 API），
+      故这里没有新增平台限制，只是把既有事实写进目标框架。
+      界面一律用原生 WPF 控件，不使用 WebView / 任何浏览器内核（与主程序同规）。
+
+    · ApplicationIcon：exe 图标与主程序同源（..\Prt.App\Assets\app.ico）。
+      刻意不复制一份到本工程——图标只该有一个源文件，复制必然分叉。
+
+    · EmbeddedResource：同一个 ico 再嵌一份，供启动界面显示品牌标。
+      ApplicationIcon 进的是 Win32 资源（只有资源管理器 / 任务栏看得到），
+      程序自己读不到，两者共用同一源文件即可。
+
+    · 依赖面：除 BCL 与平台自带的 WindowsDesktop 外无任何依赖，
+      也不引用被它监护的程序集（这是启动器能成为"启动权来源"的前提）。
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Perisc.Safety.SafeGuard</RootNamespace>
+    <AssemblyName>Perisc.Safety.SafeGuard</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>..\Prt.App\Assets\app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <!--
+    品牌标嵌入：与 exe 图标、主程序窗口图标同一个源文件（由 MarkDown+/icon.svg 烘焙而来）。
+    这里用 EmbeddedResource 而不是 WPF 的 Resource 条目：后者要靠 pack URI 取，
+    而启动器没有 Application 对象（它不跑 Application.Run，消息循环归启动界面那条线程自己管），
+    pack://application 形式的 URI 在那个时点解析不了；
+    Assembly.GetManifestResourceStream 是纯 BCL 路径，任何情况下都取得到。
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\Prt.App\Assets\app.ico"
+                      Link="Assets\app.ico"
+                      LogicalName="Perisc.Safety.SafeGuard.Assets.app.ico" />
+  </ItemGroup>
+
+  <!--
+    把 System.IO 补回隐式 using：SDK 给 WPF 工程（UseWPF=true）的隐式集合只有
+    System / System.Collections.Generic / System.Linq / System.Threading / System.Threading.Tasks
+    （实测生成的 GlobalUsings.g.cs 里确实没有 System.IO），而本工程原本是控制台工程，
+    GuardLauncher / GuardStore / Program / Wire 四个文件都直接用了 File / Path / Stream。
+    改目标框架不该顺带要求十几个文件逐个补 using，故在这里明确补回——
+    这也是本次改动唯一影响到既有源码之外的地方。
+  -->
+  <ItemGroup>
+    <Using Include="System.IO" />
+  </ItemGroup>
+
+</Project>
