@@ -144,5 +144,5 @@
 
 ---
 
-*Perisc Open Content Agreement v1.0 *
+*Perisc Open Content Agreement v1.0*
 
