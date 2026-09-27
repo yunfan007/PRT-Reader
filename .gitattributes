@@ -1,0 +1,3 @@
+# libs/ 是随仓库分发的第三方构件（.NET 目标包与 apphost），不是本项目源码。
+# 标记为 vendored：不计入 GitHub 语言统计，也不在 Pull Request 的 diff 中默认展开。
+libs/** linguist-vendored
